@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Random Cooking Recipe</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+    :root{
+        --ink:#232019;
+        --ink-soft:#5c574d;
+        --paper:#faf5e9;
+        --paper-2:#f1e9d8;
+        --forest-1:#0e3a22;
+        --forest-2:#1b5e20;
+        --forest-3:#2d6a3e;
+        --gold:#c1892e;
+        --gold-deep:#9c6c1f;
+        --line: rgba(35,32,25,0.12);
+    }
+
+    *{ margin:0; padding:0; box-sizing:border-box; }
+
+    body{
+        font-family:'Work Sans', sans-serif;
+        color:var(--ink);
+        min-height:100vh;
+        display:flex;
+        justify-content:center;
+        align-items:center;
+        padding:32px 20px;
+        background:
+            radial-gradient(circle at 18% 12%, rgba(255,255,255,0.09), transparent 45%),
+            radial-gradient(circle at 85% 88%, rgba(0,0,0,0.18), transparent 55%),
+            linear-gradient(160deg, var(--forest-1) 0%, var(--forest-2) 45%, var(--forest-3) 100%);
+        position:relative;
+    }
+
+    body::before{
+        content:"";
+        position:fixed;
+        inset:0;
+        background-image: radial-gradient(rgba(255,255,255,0.05) 1px, transparent 1px);
+        background-size: 22px 22px;
+        pointer-events:none;
+        mix-blend-mode:overlay;
+        opacity:0.5;
+    }
+
+    .container{
+        position:relative;
+        background:var(--paper);
+        border-radius:18px;
+        box-shadow:
+            0 30px 60px -20px rgba(6,30,15,0.55),
+            0 2px 0 rgba(255,255,255,0.4) inset;
+        padding:44px 44px 36px;
+        max-width:640px;
+        width:100%;
+    }
+
+    .container::after{
+        content:"";
+        position:absolute;
+        inset:10px;
+        border:1px solid rgba(27,94,32,0.15);
+        border-radius:12px;
+        pointer-events:none;
+    }
+
+    .header{
+        display:flex;
+        justify-content:space-between;
+        align-items:flex-end;
+        gap:18px;
+        flex-wrap:wrap;
+        margin-bottom:32px;
+        padding-bottom:22px;
+        border-bottom:1px solid var(--line);
+    }
+
+    .brand{ display:flex; flex-direction:column; gap:4px; }
+
+    .brand .kicker{
+        font-size:13px;
+        color:var(--forest-2);
+        letter-spacing:0.02em;
+    }
+
+    .brand h1{
+        font-family:'Fraunces', serif;
+        font-style:italic;
+        font-weight:600;
+        font-size:34px;
+        line-height:1;
+        color:var(--forest-1);
+    }
+
+    .lang-switch{
+        display:inline-flex;
+        background:var(--paper-2);
+        border-radius:999px;
+        padding:4px;
+        gap:2px;
+    }
+
+    .lang-switch button{
+        border:none;
+        background:transparent;
+        padding:8px 16px;
+        border-radius:999px;
+        font-family:'Work Sans', sans-serif;
+        font-size:13px;
+        font-weight:600;
+        color:var(--ink-soft);
+        cursor:pointer;
+        transition:all 0.25s ease;
+    }
+
+    .lang-switch button.active{
+        background:var(--forest-2);
+        color:#fdf9ee;
+        box-shadow:0 4px 10px rgba(27,94,32,0.35);
+    }
+
+    .recipe-card{
+        animation: fadeIn 0.4s ease;
+    }
+
+    @keyframes fadeIn{
+        from{ opacity:0; transform:translateY(6px); }
+        to{ opacity:1; transform:translateY(0); }
+    }
+
+    .recipe-card h2{
+        font-family:'Fraunces', serif;
+        font-weight:600;
+        font-size:28px;
+        color:var(--ink);
+        margin-bottom:18px;
+    }
+
+    .stat-row{
+        display:flex;
+        gap:12px;
+        flex-wrap:wrap;
+        margin-bottom:28px;
+    }
+
+    .stat-chip{
+        flex:1;
+        min-width:120px;
+        background:var(--paper-2);
+        border-radius:10px;
+        padding:12px 14px;
+        border-left:3px solid var(--gold);
+    }
+
+    .stat-chip .stat-label{
+        display:block;
+        font-size:11px;
+        color:var(--ink-soft);
+        margin-bottom:3px;
+    }
+
+    .stat-chip .stat-value{
+        font-family:'Fraunces', serif;
+        font-size:16px;
+        color:var(--forest-1);
+    }
+
+    .recipe-section{ margin-bottom:26px; }
+
+    .recipe-section h3{
+        font-family:'Work Sans', sans-serif;
+        font-size:14px;
+        font-weight:700;
+        color:var(--forest-2);
+        margin-bottom:14px;
+        display:flex;
+        align-items:center;
+        gap:8px;
+    }
+
+    .recipe-section h3::after{
+        content:"";
+        flex:1;
+        height:1px;
+        background:var(--line);
+    }
+
+    .ingredients{ list-style:none; }
+
+    .ingredients li{
+        position:relative;
+        padding-left:26px;
+        margin-bottom:11px;
+        color:#3c382f;
+        line-height:1.5;
+    }
+
+    .ingredients li::before{
+        content:"";
+        position:absolute;
+        left:0;
+        top:5px;
+        width:12px;
+        height:12px;
+        border:2px solid var(--gold-deep);
+        border-radius:3px;
+    }
+
+    .instructions{
+        list-style:none;
+        counter-reset:step;
+    }
+
+    .instructions li{
+        position:relative;
+        counter-increment:step;
+        padding-left:40px;
+        padding-bottom:20px;
+        margin-left:2px;
+        color:#3c382f;
+        line-height:1.6;
+    }
+
+    .instructions li::before{
+        content:counter(step);
+        position:absolute;
+        left:0;
+        top:0;
+        width:26px;
+        height:26px;
+        border-radius:50%;
+        background:var(--forest-2);
+        color:#fdf9ee;
+        font-family:'Fraunces', serif;
+        font-weight:600;
+        font-size:13px;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+    }
+
+    .instructions li::after{
+        content:"";
+        position:absolute;
+        left:13px;
+        top:26px;
+        bottom:0;
+        width:1px;
+        background:var(--line);
+    }
+
+    .instructions li:last-child{ padding-bottom:0; }
+    .instructions li:last-child::after{ display:none; }
+
+    .button-group{
+        display:flex;
+        gap:12px;
+        margin-top:6px;
+    }
+
+    .btn{
+        flex:1;
+        padding:14px 20px;
+        border-radius:10px;
+        font-family:'Work Sans', sans-serif;
+        font-weight:600;
+        font-size:14px;
+        cursor:pointer;
+        transition:all 0.25s ease;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        gap:8px;
+        border:2px solid transparent;
+    }
+
+    .btn-primary{
+        background:var(--gold);
+        color:#2a1c05;
+        box-shadow:0 8px 18px rgba(193,137,46,0.4);
+    }
+
+    .btn-primary:hover{
+        background:var(--gold-deep);
+        transform:translateY(-2px);
+        box-shadow:0 10px 22px rgba(156,108,31,0.45);
+    }
+
+    .btn-secondary{
+        background:transparent;
+        color:var(--forest-1);
+        border-color:var(--forest-2);
+    }
+
+    .btn-secondary:hover{
+        background:var(--forest-2);
+        color:#fdf9ee;
+        transform:translateY(-2px);
+    }
+
+    .loading{
+        text-align:center;
+        color:var(--forest-2);
+        font-family:'Fraunces', serif;
+        font-style:italic;
+        padding:40px 0;
+    }
+
+    .emoji{ font-size:20px; line-height:1; }
+
+    @media (max-width:600px){
+        .container{ padding:30px 22px; }
+        .brand h1{ font-size:26px; }
+        .recipe-card h2{ font-size:22px; }
+        .header{ align-items:flex-start; }
+    }
+</style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="brand">
+                <span class="kicker">Dapur digital</span>
+                <h1>Random Recipe</h1>
+            </div>
+            <div class="lang-switch">
+                <button id="langEn" class="active" onclick="switchLanguage('en')">English</button>
+                <button id="langId" onclick="switchLanguage('id')">Indonesia</button>
+            </div>
+        </div>
+
+        <div id="recipeContainer" class="recipe-card">
+            <div class="loading" id="loadingText">Menyiapkan resep lezat...</div>
+        </div>
+
+        <div class="button-group">
+            <button class="btn btn-primary" onclick="getRandomRecipe()">
+                <span class="emoji">🎲</span>Get New Recipe
+            </button>
+            <button class="btn btn-secondary" onclick="shareRecipe()">
+                <span class="emoji">📤</span>Share
+            </button>
+        </div>
+    </div>
+
+    <script>
+        let currentLanguage = 'en';
+        let currentRecipe = null;
+
+        // Recipe Database
+        const recipes = {
+            en: [
+                {
+                    name: "Spaghetti Carbonara",
+                    servings: "4 people",
+                    prepTime: "10 minutes",
+                    cookTime: "20 minutes",
+                    ingredients: [
+                        "400g spaghetti",
+                        "200g pancetta, diced",
+                        "4 large eggs",
+                        "100g Parmesan cheese, grated",
+                        "Salt and black pepper to taste",
+                        "Fresh parsley for garnish"
+                    ],
+                    instructions: [
+                        "Cook spaghetti in salted boiling water until al dente",
+                        "Fry pancetta until crispy, then remove from heat",
+                        "Beat eggs with grated Parmesan cheese",
+                        "Drain pasta and mix with pancetta",
+                        "Remove from heat and quickly mix in egg mixture",
+                        "Season with salt and pepper, serve immediately"
+                    ]
+                },
+                {
+                    name: "Chicken Stir-Fry",
+                    servings: "2 people",
+                    prepTime: "15 minutes",
+                    cookTime: "15 minutes",
+                    ingredients: [
+                        "400g chicken breast, sliced",
+                        "2 cups mixed vegetables (broccoli, bell pepper, carrots)",
+                        "3 cloves garlic, minced",
+                        "3 tablespoons soy sauce",
+                        "1 tablespoon sesame oil",
+                        "1 teaspoon ginger, grated",
+                        "Rice for serving"
+                    ],
+                    instructions: [
+                        "Heat sesame oil in a wok or large pan over high heat",
+                        "Add garlic and ginger, stir-fry for 1 minute",
+                        "Add chicken and cook until golden",
+                        "Add vegetables and stir-fry for 5 minutes",
+                        "Add soy sauce and mix well",
+                        "Serve over steamed rice"
+                    ]
+                },
+                {
+                    name: "Chocolate Chip Cookies",
+                    servings: "24 cookies",
+                    prepTime: "15 minutes",
+                    cookTime: "12 minutes",
+                    ingredients: [
+                        "225g butter, softened",
+                        "200g brown sugar",
+                        "100g white sugar",
+                        "2 large eggs",
+                        "2 teaspoons vanilla extract",
+                        "280g all-purpose flour",
+                        "1 teaspoon baking soda",
+                        "340g chocolate chips"
+                    ],
+                    instructions: [
+                        "Preheat oven to 375°F (190°C)",
+                        "Cream butter and sugars together",
+                        "Beat in eggs and vanilla extract",
+                        "Mix flour and baking soda, add to butter mixture",
+                        "Fold in chocolate chips",
+                        "Drop spoonfuls onto baking sheet",
+                        "Bake for 10-12 minutes until golden brown"
+                    ]
+                },
+                {
+                    name: "Margherita Pizza",
+                    servings: "2 people",
+                    prepTime: "20 minutes",
+                    cookTime: "15 minutes",
+                    ingredients: [
+                        "1 pizza dough (store-bought or homemade)",
+                        "200ml tomato sauce",
+                        "250g fresh mozzarella",
+                        "Fresh basil leaves",
+                        "Olive oil",
+                        "Salt to taste"
+                    ],
+                    instructions: [
+                        "Preheat oven to 450°F (230°C)",
+                        "Roll out pizza dough on baking sheet",
+                        "Spread tomato sauce evenly",
+                        "Tear and distribute mozzarella",
+                        "Drizzle with olive oil and season with salt",
+                        "Bake for 12-15 minutes until crust is golden",
+                        "Top with fresh basil before serving"
+                    ]
+                },
+                {
+                    name: "Caesar Salad",
+                    servings: "2 people",
+                    prepTime: "15 minutes",
+                    cookTime: "5 minutes",
+                    ingredients: [
+                        "1 head romaine lettuce",
+                        "50g Parmesan cheese",
+                        "100g croutons",
+                        "200ml Caesar dressing",
+                        "Bacon bits (optional)",
+                        "Black pepper to taste"
+                    ],
+                    instructions: [
+                        "Wash and chop romaine lettuce",
+                        "Toast croutons if fresh bread is used",
+                        "Toss lettuce with Caesar dressing",
+                        "Add Parmesan cheese and croutons",
+                        "Top with bacon bits if desired",
+                        "Serve immediately"
+                    ]
+                }
+            ],
+            id: [
+                {
+                    name: "Nasi Goreng",
+                    servings: "2 orang",
+                    prepTime: "10 menit",
+                    cookTime: "15 menit",
+                    ingredients: [
+                        "3 cangkir nasi putih (nasi hari sebelumnya)",
+                        "3 butir telur",
+                        "100g udang atau daging cincang",
+                        "2 siung bawang putih, cincang",
+                        "1 cabe merah, iris",
+                        "3 sendok makan kecap manis",
+                        "1 sendok makan minyak goreng",
+                        "Garam dan lada putih secukupnya"
+                    ],
+                    instructions: [
+                        "Panaskan minyak goreng di wajan",
+                        "Tumis bawang putih dan cabe merah hingga harum",
+                        "Tambahkan udang/daging dan masak hingga matang",
+                        "Masukkan nasi dan kecap manis, aduk rata",
+                        "Buatkan telur ceplok di samping, kemudian campur dengan nasi",
+                        "Tambahkan garam dan lada sesuai selera",
+                        "Sajikan hangat dengan lalapan"
+                    ]
+                },
+                {
+                    name: "Gado-Gado",
+                    servings: "3 orang",
+                    prepTime: "20 menit",
+                    cookTime: "15 menit",
+                    ingredients: [
+                        "200g kubis, potong-potong",
+                        "150g tauge",
+                        "100g buncis",
+                        "2 buah telur rebus, potong",
+                        "200g tahu goreng, potong dadu",
+                        "150g kacang tanah sangrai",
+                        "3 siung bawang putih",
+                        "2 sendok makan kecap manis",
+                        "Air dan garam secukupnya"
+                    ],
+                    instructions: [
+                        "Rebus kubis, tauge, dan buncis hingga setengah matang",
+                        "Tiriskan dan tata di piring",
+                        "Haluskan kacang tanah dengan bawang putih",
+                        "Campur dengan kecap manis dan air hingga konsistensi pas",
+                        "Tuang bumbu kacang di atas sayuran",
+                        "Tambahkan telur rebus dan tahu goreng",
+                        "Sajikan dengan kerupuk"
+                    ]
+                },
+                {
+                    name: "Rendang Daging",
+                    servings: "4 orang",
+                    prepTime: "15 menit",
+                    cookTime: "60 menit",
+                    ingredients: [
+                        "500g daging sapi, potong",
+                        "400ml santan kental",
+                        "5 buah cabe merah",
+                        "4 siung bawang putih",
+                        "3cm jahe, iris",
+                        "4 lembar daun kunyit",
+                        "2 lembar daun pandan",
+                        "Garam dan gula secukupnya"
+                    ],
+                    instructions: [
+                        "Haluskan cabe merah, bawang putih, dan jahe",
+                        "Masukkan daging ke dalam santan",
+                        "Tambahkan bumbu halus dan daun-daunan",
+                        "Masak dengan api sedang sambil diaduk sesering mungkin",
+                        "Lanjutkan memasak hingga santan menyusut dan minyak terpisah",
+                        "Cek kematangan daging dan tingkat kekeringan",
+                        "Sajikan dengan nasi putih panas"
+                    ]
+                },
+                {
+                    name: "Lumpia Goreng",
+                    servings: "10 pieces",
+                    prepTime: "20 menit",
+                    cookTime: "20 menit",
+                    ingredients: [
+                        "10 lembar kulit lumpia",
+                        "200g daging cincang",
+                        "1 cangkir tauge",
+                        "2 siung bawang putih, cincang",
+                        "1 buah wortel, iris halus",
+                        "2 sendok makan kecap manis",
+                        "1 sendok makan minyak sesama",
+                        "Minyak untuk menggoreng"
+                    ],
+                    instructions: [
+                        "Panaskan minyak sesama, tumis bawang putih",
+                        "Tambahkan daging dan masak hingga matang",
+                        "Masukkan wortel dan tauge, aduk rata",
+                        "Tambahkan kecap manis dan seasoning",
+                        "Letakkan isian di kulit lumpia dan gulung rapi",
+                        "Goreng lumpia dalam minyak panas hingga golden",
+                        "Tiriskan dan sajikan dengan saos cabe"
+                    ]
+                },
+                {
+                    name: "Soto Ayam",
+                    servings: "4 orang",
+                    prepTime: "15 menit",
+                    cookTime: "30 menit",
+                    ingredients: [
+                        "500g ayam, potong",
+                        "2 liter air",
+                        "5 siung bawang putih",
+                        "3cm kunyit",
+                        "3cm jahe",
+                        "3 buah kemiri",
+                        "2 sendok makan minyak",
+                        "Garam dan merica secukupnya",
+                        "Jeruk nipis untuk penyajian"
+                    ],
+                    instructions: [
+                        "Haluskan bawang putih, kunyit, jahe, dan kemiri",
+                        "Panaskan minyak, tumis bumbu halus hingga harum",
+                        "Masukkan ayam dan aduk hingga berubah warna",
+                        "Tuang air dan didihkan",
+                        "Masak hingga ayam matang (±20 menit)",
+                        "Cek rasa dan tambahkan garam/merica sesuai selera",
+                        "Sajikan dengan kuah panas dan jeruk nipis"
+                    ]
+                }
+            ]
+        };
+
+        function switchLanguage(lang) {
+            currentLanguage = lang;
+            document.getElementById('langEn').classList.toggle('active', lang === 'en');
+            document.getElementById('langId').classList.toggle('active', lang === 'id');
+            getRandomRecipe();
+        }
+
+        function getRandomRecipe() {
+            const recipeList = recipes[currentLanguage];
+            const randomIndex = Math.floor(Math.random() * recipeList.length);
+            currentRecipe = recipeList[randomIndex];
+            displayRecipe(currentRecipe);
+        }
+
+        function displayRecipe(recipe) {
+            const container = document.getElementById('recipeContainer');
+            const labels = currentLanguage === 'en' ? {
+                ingredients: 'Ingredients',
+                instructions: 'Instructions',
+                servings: 'Servings',
+                prepTime: 'Prep Time',
+                cookTime: 'Cook Time'
+            } : {
+                ingredients: 'Bahan-Bahan',
+                instructions: 'Cara Membuat',
+                servings: 'Porsi',
+                prepTime: 'Waktu Persiapan',
+                cookTime: 'Waktu Memasak'
+            };
+
+            let ingredientsList = recipe.ingredients.map(ing => `<li>${ing}</li>`).join('');
+            let instructionsList = recipe.instructions.map(inst => `<li>${inst}</li>`).join('');
+
+            container.innerHTML = `
+                <h2>${recipe.name}</h2>
+                <div class="stat-row">
+                    <div class="stat-chip">
+                        <span class="stat-label">${labels.servings}</span>
+                        <span class="stat-value">${recipe.servings}</span>
+                    </div>
+                    <div class="stat-chip">
+                        <span class="stat-label">${labels.prepTime}</span>
+                        <span class="stat-value">${recipe.prepTime}</span>
+                    </div>
+                    <div class="stat-chip">
+                        <span class="stat-label">${labels.cookTime}</span>
+                        <span class="stat-value">${recipe.cookTime}</span>
+                    </div>
+                </div>
+                <div class="recipe-section">
+                    <h3>${labels.ingredients}</h3>
+                    <ul class="ingredients">${ingredientsList}</ul>
+                </div>
+                <div class="recipe-section">
+                    <h3>${labels.instructions}</h3>
+                    <ol class="instructions">${instructionsList}</ol>
+                </div>
+            `;
+        }
+
+        function shareRecipe() {
+            if (!currentRecipe) {
+                alert('Please get a recipe first!');
+                return;
+            }
+            const text = `Check out this recipe: ${currentRecipe.name}! 🍳\n\nServings: ${currentRecipe.servings}\nPrep Time: ${currentRecipe.prepTime}\nCook Time: ${currentRecipe.cookTime}`;
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Random Cooking Recipe',
+                    text: text
+                }).catch(err => console.log('Error sharing:', err));
+            } else {
+                alert(text);
+            }
+        }
+
+        // Load initial recipe on page load
+        window.onload = function() {
+            getRandomRecipe();
+        };
+    </script>
+</body>
+</html>
